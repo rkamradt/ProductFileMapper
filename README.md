@@ -4,7 +4,7 @@
 
 Read from a product file and map to a database object
 
-![Build Status](https://ci.appveyor.com/api/projects/status/github/ProductFileMapper/)
+[![Build status](https://ci.appveyor.com/api/projects/status/h90yk2j6jms9drn7?svg=true)](https://ci.appveyor.com/project/rkamradt/productfilemapper)
 
 ## Instructions for running the project:
 
