@@ -1,0 +1,4 @@
+image: Ubuntu
+stack: jdk 11
+build_script:
+- mvn install
