@@ -1,4 +1,7 @@
 image: Ubuntu
 stack: jdk 11
 build_script:
+- echo $MAVEN_HOME
 - mvn install
+cache:
+- $MAVEN_HOME/ -> pom.xml
