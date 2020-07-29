@@ -8,7 +8,7 @@ class SimpleStoreMapper : StoreMapper {
     val normalTaxRate = BigDecimal.valueOf(777,2)
     override fun mapFromStore(row: String): Map<String, String>? {
         val data = row.split(" ")
-        if(data.size != 2) null
+        if(data.size != 2) return null
         val productId = data[1]
         val productName = data[0]
         return mapOf(productIdString to productId, productNameString to productName)

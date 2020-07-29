@@ -1,0 +1,4 @@
+line 1
+line 2
+BadRow
+line 3

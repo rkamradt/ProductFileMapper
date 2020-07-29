@@ -24,7 +24,7 @@ class ProductFileMapperTest {
             "test-store"
         )
         val consumer: MapProductDescriptionConsumer
-            = sut.consumer as MapProductDescriptionConsumer
+                = sut.consumer as MapProductDescriptionConsumer
         assertEquals(3, consumer.map.size)
         val keys = listOf(1L, 2L, 3L)
         consumer.map.forEach {
@@ -32,6 +32,24 @@ class ProductFileMapperTest {
             assertEquals(it.key, it.value.productId)
             assertEquals("line", it.value.productDescription)
             logger.info("found product description $it.value")
+        }
+    }
+    @Test
+    fun `Process a simple test file with bad row`() = runBlocking {
+        sut.mapProductReader(
+            BufferedReader(
+                InputStreamReader(
+                    javaClass.getResourceAsStream("/testfilebadrow.txt"))),
+            "test-store"
+        )
+        val consumer: MapProductDescriptionConsumer
+                = sut.consumer as MapProductDescriptionConsumer
+        assertEquals(3, consumer.map.size)
+        val keys = listOf(1L, 2L, 3L)
+        consumer.map.forEach {
+            assertTrue(keys.contains(it.key))
+            assertEquals(it.key, it.value.productId)
+            assertEquals("line", it.value.productDescription)
         }
     }
 }
