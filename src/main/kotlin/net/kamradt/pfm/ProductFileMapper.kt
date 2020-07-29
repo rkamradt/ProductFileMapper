@@ -10,7 +10,7 @@ import java.lang.RuntimeException
 
 class ProductFileMapper(
     val producer: ProductReaderProducer,
-    val mapper: Map<String, StoreMapper>,
+    val storeMapperMap: Map<String, StoreMapper>,
     val consumer: ProductDescriptionConsumer
 ) {
 
@@ -22,9 +22,11 @@ class ProductFileMapper(
     }
 
     suspend fun mapProductReader(reader: BufferedReader, storeName: String): Unit =
-        if (mapper.containsKey(storeName))
+        if (storeMapperMap.containsKey(storeName))
             producer.recordProducer(reader)
-                .map { mapper.getValue(storeName).mapFromStore(it) }
+                .map { storeMapperMap.getValue(storeName).mapFromStore(it) }
+                .filterNotNull()
+                .map { storeMapperMap.getValue(storeName).mapToProduct(it) }
                 .filterNotNull()
                 .collect { consumer.action(it) }
         else
