@@ -3,11 +3,55 @@ stores:
   - name: "SuperStore"
     fields:
       - storeFileFieldName: "productId"
+        storeFileFieldType: Number
         productDescriptionField: "productId"
+        productDescriptionType: "Long"
         startOffset: 1
         endOffset: 8
       - storeFileFieldName: "productDescriptor"
+        storeFileFieldType: String
         productDescriptionField: "productDescription"
-        startOffset: 9
-        endOffset: 20
+        productDescriptionType: "String"
+        startOffset: 10
+        endOffset: 68
+      - storeFileFieldName: "regularSingularPrice"
+        storeFileFieldType: Currency
+        productDescriptionField: ""
+        startOffset: 70
+        endOffset: 77
+      - storeFileFieldName: "promotionalSingularPrice"
+        storeFileFieldType: Currency
+        productDescriptionField: ""
+        startOffset: 79
+        endOffset: 86
+      - storeFileFieldName: "regularSplitPrice"
+        storeFileFieldType: Currency
+        productDescriptionField: ""
+        startOffset: 88
+        endOffset: 95
+      - storeFileFieldName: "promotionalSplitPrice"
+        storeFileFieldType: Currency
+        productDescriptionField: ""
+        startOffset: 97
+        endOffset: 104
+      - storeFileFieldName: "regularForX"
+        storeFileFieldType: Number
+        productDescriptionField: ""
+        startOffset: 106
+        endOffset: 113
+      - storeFileFieldName: "promotionalForX"
+        storeFileFieldType: Number
+        productDescriptionField: ""
+        startOffset: 115
+        endOffset: 122
+      - storeFileFieldName: "Flags"
+        storeFileFieldType: Flag
+        productDescriptionField: ""
+        startOffset: 124
+        endOffset: 132
+      - storeFileFieldName: "productSize"
+        storeFileFieldType: String
+        productDescriptionField: ""
+        startOffset: 134
+        endOffset: 142
 

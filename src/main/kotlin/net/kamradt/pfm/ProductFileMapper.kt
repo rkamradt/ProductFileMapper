@@ -52,20 +52,23 @@ data class StoresFileDescriptor(
     val stores: List<StoreFileDescriptor>
 )
 
-fun configStoreMapBuilder(): Map<String, StoreMapper> {
+fun configStoreMapBuilder(resourceName: String = "/stores.yaml"): Map<String, StoreMapper> {
     val mapper = ObjectMapper(YAMLFactory())
     mapper.registerModule(KotlinModule())
-    val map = ProductFileMapper::class.java.getResourceAsStream("/stores.yaml").use {
+    val map = ProductFileMapper::class.java.getResourceAsStream(resourceName).use {
         val stores: StoresFileDescriptor = mapper.readValue(it)
         return stores.stores.associateBy({it.name}, {createStoreMapper(it)})
     }
 }
 
+val maxRowSize = 142
+
 fun createStoreMapper(descriptor: StoreFileDescriptor): StoreMapper =
     object : StoreMapper {
         override fun mapFromStore(row: String): Map<String, String>? =
             try {
-                descriptor.fields.associateBy({it.storeFileFieldName},{row.substring(it.startOffset,it.endOffset)})
+                if (row.length < maxRowSize) row.padEnd(maxRowSize,' ')
+                descriptor.fields.associateBy({it.storeFileFieldName},{row.substring(it.startOffset-1,it.endOffset)})
             } catch (ex: Exception) {
                 null
             }

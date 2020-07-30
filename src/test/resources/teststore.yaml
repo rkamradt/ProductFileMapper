@@ -1,0 +1,28 @@
+type: "ProductDescription"
+stores:
+  - name: "SuperStore"
+    fields:
+      - storeFileFieldName: "productId"
+        storeFileFieldType: Number
+        productDescriptionField: "productId"
+        productDescriptionType: "Long"
+        startOffset: 1
+        endOffset: 8
+      - storeFileFieldName: "productDescriptor"
+        storeFileFieldType: String
+        productDescriptionField: "productDescription"
+        productDescriptionType: "String"
+        startOffset: 9
+        endOffset: 20
+  - name: "MediocreStore"
+    fields:
+      - storeFileFieldName: "productId"
+        storeFileFieldType: Number
+        productDescriptionField: "productId"
+        startOffset: 2
+        endOffset: 9
+      - storeFileFieldName: "productDescriptor"
+        storeFileFieldType: String
+        productDescriptionField: "productDescription"
+        startOffset: 10
+        endOffset: 21

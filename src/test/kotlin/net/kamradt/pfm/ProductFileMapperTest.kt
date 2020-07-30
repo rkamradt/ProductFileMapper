@@ -64,9 +64,24 @@ class ProductFileMapperTest {
         sut.mapProductReader(
             BufferedReader(
                 InputStreamReader(
-                    javaClass.getResourceAsStream("/testfile.txt"))),
+                    javaClass.getResourceAsStream("/SuperStore.txt"))),
             "SuperStore"
         )
         assertEquals(0, consumer.map.size)
+    }
+
+    @Test
+    fun `test createStoreMapBuilder function with teststore yaml`() {
+        val storeMap = configStoreMapBuilder("/teststore.yaml")
+        assertEquals(2, storeMap.size)
+        assertTrue(storeMap.containsKey("SuperStore"))
+        assertTrue(storeMap.containsKey("MediocreStore"))
+    }
+
+    @Test
+    fun `test createStoreMapBuilder function with stores yaml`() {
+        val storeMap = configStoreMapBuilder("/stores.yaml")
+        assertEquals(1, storeMap.size)
+        assertTrue(storeMap.containsKey("SuperStore"))
     }
 }
