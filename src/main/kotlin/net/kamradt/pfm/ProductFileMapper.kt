@@ -11,10 +11,12 @@ import net.kamradt.pfm.api.ProductDescriptionConsumer
 import net.kamradt.pfm.api.StoreMapper
 import net.kamradt.pfm.data.ProductDescription
 import net.kamradt.pfm.data.StoreFileDescriptor
+import net.kamradt.pfm.data.StoresFileDescriptor
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
 import java.lang.RuntimeException
+import java.util.Objects.isNull
 
 class ProductFileMapper(
     private val consumer: ProductDescriptionConsumer,
@@ -24,11 +26,9 @@ class ProductFileMapper(
         configStoreMapBuilder()
 ) {
 
-    suspend fun mapProductFile(file: File, storeName: String) {
-        val reader = BufferedReader(FileReader(file))
-        reader.use {
-            mapProductReader(reader, storeName)
-        }
+    suspend fun mapProductFile(file: File, storeName: String) =
+        BufferedReader(FileReader(file)).use {
+        mapProductReader(it, storeName)
     }
 
     suspend fun mapProductReader(reader: BufferedReader, storeName: String): Unit =
@@ -43,11 +43,6 @@ class ProductFileMapper(
             throw RuntimeException("unknown store $storeName")
 }
 
-data class StoresFileDescriptor(
-    val type: String,
-    val stores: List<StoreFileDescriptor>
-)
-
 fun configStoreMapBuilder(resourceName: String = "/stores.yaml"): Map<String, StoreMapper> {
     val mapper = ObjectMapper(YAMLFactory())
     mapper.registerModule(KotlinModule())
@@ -57,14 +52,22 @@ fun configStoreMapBuilder(resourceName: String = "/stores.yaml"): Map<String, St
     }
 }
 
-val maxRowSize = 142
 
 fun createStoreMapper(descriptor: StoreFileDescriptor): StoreMapper =
     object : StoreMapper {
         override fun mapFromStore(row: String): Map<String, String>? =
             try {
+                val maxRowSize = descriptor
+                    .fields
+                    .stream()
+                    .mapToInt{ it.endOffset ?: 0 }
+                    .max()
+                    .orElse(0);
                 if (row.length < maxRowSize) row.padEnd(maxRowSize,' ')
-                descriptor.fields.associateBy({it.storeFileFieldName},{row.substring(it.startOffset-1,it.endOffset)})
+                descriptor.fields
+                    .filter { !isNull(it.storeFileFieldName)  }
+                    .associateBy({it.storeFileFieldName ?: ""},
+                        {row.substring((it.startOffset ?: 1)-1,(it.endOffset ?: 1))})
             } catch (ex: Exception) {
                 null
             }
@@ -72,15 +75,15 @@ fun createStoreMapper(descriptor: StoreFileDescriptor): StoreMapper =
         override fun mapToProduct(storeData: Map<String, String>): ProductDescription? =
             try {
                 ProductDescription(
-                    productId = descriptor.convertLong("productId", storeData),
-                    productDescription = descriptor.convertOptString("productDescription", storeData),
-                    regularDisplayPrice = descriptor.convertOptString("regularDisplayPrice", storeData),
-                    regularCalculatorPrice = descriptor.convertBigDecimal("regularCalculatorPrice", storeData),
-                    promotionalDisplayPrice = descriptor.convertOptString("promotionalDisplayPrice", storeData),
-                    promotionalCalculatorPrice = descriptor.convertOptBigDecimal("promotionalCalculatorPrice", storeData),
-                    unitOfMeasure = descriptor.convertOptString("unitOfMeasure", storeData),
-                    productSize = descriptor.convertOptString("productSize", storeData),
-                    taxRate = descriptor.convertBigDecimal("taxRate", storeData)
+                    productId = descriptor.convertLong("productId", storeData, descriptor),
+                    productDescription = descriptor.convertOptString("productDescription", storeData, descriptor),
+                    regularDisplayPrice = descriptor.convertOptString("regularDisplayPrice", storeData, descriptor),
+                    regularCalculatorPrice = descriptor.convertBigDecimal("regularCalculatorPrice", storeData, descriptor),
+                    promotionalDisplayPrice = descriptor.convertOptString("promotionalDisplayPrice", storeData, descriptor),
+                    promotionalCalculatorPrice = descriptor.convertOptBigDecimal("promotionalCalculatorPrice", storeData, descriptor),
+                    unitOfMeasure = descriptor.convertOptString("unitOfMeasure", storeData, descriptor),
+                    productSize = descriptor.convertOptString("productSize", storeData, descriptor),
+                    taxRate = descriptor.convertBigDecimal("taxRate", storeData, descriptor)
                 )
             } catch (ex: Exception) {
                 null

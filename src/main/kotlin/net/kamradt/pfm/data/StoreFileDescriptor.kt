@@ -2,23 +2,34 @@ package net.kamradt.pfm.data
 
 import java.math.BigDecimal
 
+data class StoresFileDescriptor(
+    val type: String,
+    val stores: List<StoreFileDescriptor>
+)
+
 data class StoreFileDescriptor(
     val name: String,
     val fields: List<StoreFileDescriptorField>
 ) {
-    fun convertLong(name: String, storeData: Map<String, String>): Long =
-        storeData.getValue(name).toLong()
+    fun convertLong(name: String, storeData: Map<String, String>, descriptor: StoreFileDescriptor): Long =
+        if (!storeData.containsKey(name))
+            0L
+        else
+            storeData.getValue(name).toLong()
 
-    fun convertOptString(name: String, storeData: Map<String, String>): String? =
+    fun convertOptString(name: String, storeData: Map<String, String>, descriptor: StoreFileDescriptor): String? =
         if (!storeData.containsKey(name))
             null
         else
             storeData.getValue(name).trim();
 
-    fun convertBigDecimal(name: String, storeData: Map<String, String>): BigDecimal =
-        BigDecimal.valueOf(storeData.getValue(name).toLong(), 2)
+    fun convertBigDecimal(name: String, storeData: Map<String, String>, descriptor: StoreFileDescriptor): BigDecimal =
+        if (!storeData.containsKey(name))
+            BigDecimal.ZERO
+        else
+            BigDecimal.valueOf(storeData.getValue(name).toLong(), 2)
 
-    fun convertOptBigDecimal(name: String, storeData: Map<String, String>): BigDecimal? =
+    fun convertOptBigDecimal(name: String, storeData: Map<String, String>, descriptor: StoreFileDescriptor): BigDecimal? =
         if (!storeData.containsKey(name))
             null
         else
@@ -33,11 +44,11 @@ enum class FileFieldType {
 }
 
 data class StoreFileDescriptorField(
-    val storeFileFieldName: String,
-    val storeFileFieldType: FileFieldType,
-    val productDescriptionField: String?,
-    val productDescriptionType: String?,
-    val startOffset: Int,
-    val endOffset: Int,
+    val storeFileFieldName: String? = null,
+    val storeFileFieldType: FileFieldType? = null,
+    val productDescriptionField: String? = null,
+    val productDescriptionType: String? = null,
+    val startOffset: Int? = null,
+    val endOffset: Int? = null,
     val converterClassName: String? = null
 )

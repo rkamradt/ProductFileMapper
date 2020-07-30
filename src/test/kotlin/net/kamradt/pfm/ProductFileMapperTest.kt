@@ -67,7 +67,7 @@ class ProductFileMapperTest {
                     javaClass.getResourceAsStream("/SuperStore.txt"))),
             "SuperStore"
         )
-        assertEquals(0, consumer.map.size)
+        assertEquals(3, consumer.map.size)
     }
 
     @Test

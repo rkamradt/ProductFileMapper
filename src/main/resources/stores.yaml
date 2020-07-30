@@ -44,7 +44,7 @@ stores:
         productDescriptionField: ""
         startOffset: 115
         endOffset: 122
-      - storeFileFieldName: "Flags"
+      - storeFileFieldName: "flags"
         storeFileFieldType: Flag
         productDescriptionField: ""
         startOffset: 124
@@ -54,4 +54,7 @@ stores:
         productDescriptionField: ""
         startOffset: 134
         endOffset: 142
+      - storeFileFieldName: ""
+        productDescriptionField: "regularCalculatorPrice"
+        productDescriptionType: "String"
 
