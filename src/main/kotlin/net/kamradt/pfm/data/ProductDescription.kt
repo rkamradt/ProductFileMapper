@@ -1,4 +1,4 @@
-package net.kamradt.pfm
+package net.kamradt.pfm.data
 
 import java.math.BigDecimal
 

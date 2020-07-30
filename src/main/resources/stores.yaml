@@ -1,0 +1,13 @@
+type: "ProductDescription"
+stores:
+  - name: "SuperStore"
+    fields:
+      - storeFileFieldName: "productId"
+        productDescriptionField: "productId"
+        startOffset: 1
+        endOffset: 8
+      - storeFileFieldName: "productDescriptor"
+        productDescriptionField: "productDescription"
+        startOffset: 9
+        endOffset: 20
+

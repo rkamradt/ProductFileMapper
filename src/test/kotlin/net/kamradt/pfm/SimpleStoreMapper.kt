@@ -1,5 +1,7 @@
 package net.kamradt.pfm
 
+import net.kamradt.pfm.api.StoreMapper
+import net.kamradt.pfm.data.ProductDescription
 import java.math.BigDecimal
 
 class SimpleStoreMapper : StoreMapper {
