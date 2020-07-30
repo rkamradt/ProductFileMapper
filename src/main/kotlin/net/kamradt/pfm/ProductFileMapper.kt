@@ -3,7 +3,6 @@ package net.kamradt.pfm
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
@@ -12,13 +11,10 @@ import net.kamradt.pfm.api.ProductDescriptionConsumer
 import net.kamradt.pfm.api.StoreMapper
 import net.kamradt.pfm.data.ProductDescription
 import net.kamradt.pfm.data.StoreFileDescriptor
-import org.slf4j.LoggerFactory
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
 import java.lang.RuntimeException
-import java.math.BigDecimal
-import java.util.Properties
 
 class ProductFileMapper(
     private val consumer: ProductDescriptionConsumer,
@@ -55,7 +51,7 @@ data class StoresFileDescriptor(
 fun configStoreMapBuilder(resourceName: String = "/stores.yaml"): Map<String, StoreMapper> {
     val mapper = ObjectMapper(YAMLFactory())
     mapper.registerModule(KotlinModule())
-    val map = ProductFileMapper::class.java.getResourceAsStream(resourceName).use {
+    ProductFileMapper::class.java.getResourceAsStream(resourceName).use {
         val stores: StoresFileDescriptor = mapper.readValue(it)
         return stores.stores.associateBy({it.name}, {createStoreMapper(it)})
     }

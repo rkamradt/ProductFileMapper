@@ -6,6 +6,6 @@ import net.kamradt.pfm.data.ProductDescription
 class MapProductDescriptionConsumer : ProductDescriptionConsumer {
     val map = mutableMapOf<Long, ProductDescription>()
     override suspend fun action(value: ProductDescription) {
-        map.put(value.productId, value)
+        map[value.productId] = value
     }
 }
