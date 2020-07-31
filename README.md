@@ -29,12 +29,15 @@ class ProductFileMapper(
         configStoreMapBuilder()
 )
 ```
+
 The only required parameter is the destination, the other parameters are only for very
 special use-cases. The destination parameter determines the disposition of each `ProductDescription`
-type that is read in from a `BufferedReader`. The function to call in this class is
+type that is read in from a `BufferedReader`. 
+
 ```
 suspend fun mapProductReader(reader: BufferedReader, storeName: String): Unit
 ```
+
 This takes a `BufferedReader` as an input source and a storeName that indexes into a yaml file
 It is the callers responsiblity to close the stream or file it came from when the processing is 
 finished. It is also the callers responsibilty to decide the threading for the suspend. The only
@@ -56,12 +59,29 @@ stores:
         productDescriptionField: "taxRate"
         converterClassName: "net.kamradt.pfm.converter.TaxRate"
 ```
+
 Note, this is a truncated version of the actual `stores.yaml`. Either the `storeFileFieldName` or the `productDescriptionField` or both must be present. If both
 fields are present, a common converter such as `net.kamradt.pfm.converter.Number` can be used
 to map the input field to the output field. If there is only a `storeFileFieldName` the field is
 read from the input and saved. If there is only a `productDescriptionField` a specialized 
 converter such as `net.kamradt.pfm.converter.TaxRate` must be used to determine the input fields 
 used. New custom converters can be created but must implement the interface `StoreFileDescriptorConverter`
+
+To override the yaml packaged in the jar, put a `/stores.yaml` file on the classpath prior to the jar or
+pass in another `storeMapperMap` parameter to the `ProductFileMapper` constructor. The default one is 
+created but this function:
+                                                                                                      by this function:
+
+```
+fun configStoreMapBuilder(resourceName: String = "/stores.yaml"): Map<String, StoreMapper> {
+    val mapper = ObjectMapper(YAMLFactory())
+    mapper.registerModule(KotlinModule())
+    ProductFileMapper::class.java.getResourceAsStream(resourceName).use {
+        val stores: StoresFileDescriptor = mapper.readValue(it)
+        return stores.stores.associateBy({it.name}, {createStoreMapper(it)})
+    }
+}
+```
 
 ## Overview
 
