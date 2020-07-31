@@ -18,6 +18,8 @@ Other normal maven goals are supported as well.
 
 The CI build can be found [here](https://ci.appveyor.com/project/rkamradt/productfilemapper)
 
+The last built jar can be found [here](https://ci.appveyor.com/project/rkamradt/productfilemapper/build/artifacts)
+
 The entrypoint is the class:
 
 ```

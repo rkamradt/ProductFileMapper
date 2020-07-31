@@ -17,4 +17,3 @@ data class StoreFileDescriptorField(
     val endOffset: Int? = null,
     val converterClassName: String? = null
 )
-

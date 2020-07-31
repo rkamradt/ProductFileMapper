@@ -4,12 +4,19 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 import net.kamradt.pfm.api.StoreFileDescriptorConverter
 import net.kamradt.pfm.api.StoreMapper
-import net.kamradt.pfm.data.*
+import net.kamradt.pfm.data.MAX_ROW_SIZE
+import net.kamradt.pfm.data.ProductDescription
+import net.kamradt.pfm.data.StoreFileDescriptor
+import net.kamradt.pfm.data.StoreFileDescriptorField
+import net.kamradt.pfm.data.StoresFileDescriptor
 import java.io.BufferedReader
-import java.lang.RuntimeException
 import java.util.Objects.isNull
 import kotlin.reflect.full.createInstance
 
@@ -39,31 +46,36 @@ fun configStoreMapBuilder(resourceName: String = "/stores.yaml"): Map<String, St
     mapper.registerModule(KotlinModule())
     ProductFileMapper::class.java.getResourceAsStream(resourceName).use {
         val stores: StoresFileDescriptor = mapper.readValue(it)
-        return stores.stores.associateBy({it.name}, {createStoreMapper(it)})
+        return stores.stores.associateBy({ it.name }, { createStoreMapper(it) })
     }
 }
-
 
 fun createStoreMapper(descriptor: StoreFileDescriptor): StoreMapper =
     object : StoreMapper {
         val converterMap: Map<String, StoreFileDescriptorConverter<Any>> =
             descriptor.fields
-                .filter { !isNull(it.converterClassName)
-                        && !isNull(it.productDescriptionField)}
-                .associateBy({it.productDescriptionField ?: ""},
-                    { getConverterClass(it) })
+                .filter {
+                    !isNull(it.converterClassName) &&
+                        !isNull(it.productDescriptionField)
+                }
+                .associateBy(
+                    { it.productDescriptionField ?: "" },
+                    { getConverterClass(it) }
+                )
         override fun mapFromStore(row: String): Map<String, String>? =
             try {
                 val paddedrow = if (row.length < MAX_ROW_SIZE)
-                    row.padEnd(MAX_ROW_SIZE,' ')
+                    row.padEnd(MAX_ROW_SIZE, ' ')
                 else
                     row
                 descriptor.fields
-                    .filter { !isNull(it.storeFileFieldName)  }
-                    .associateBy({it.storeFileFieldName ?: ""},
-                        {paddedrow.substring((it.startOffset ?: 1)-1,(it.endOffset ?: 1))})
+                    .filter { !isNull(it.storeFileFieldName) }
+                    .associateBy(
+                        { it.storeFileFieldName ?: "" },
+                        { paddedrow.substring((it.startOffset ?: 1) - 1, (it.endOffset ?: 1)) }
+                    )
             } catch (ex: Exception) {
-                null
+                null // nulls are filtered out so invalid rows are ignored
             }
 
         override fun mapToProduct(storeData: Map<String, String>): ProductDescription? =
@@ -74,10 +86,11 @@ fun createStoreMapper(descriptor: StoreFileDescriptor): StoreMapper =
                     descriptor
                 )
             } catch (ex: Exception) {
-                null
+                null // nulls are filtered out so invalid rows are ignored
             }
-        }
+    }
 
+@Suppress("UNCHECKED_CAST")
 fun getConverterClass(descriptor: StoreFileDescriptorField): StoreFileDescriptorConverter<Any> =
     Class.forName(descriptor.converterClassName)
         .kotlin

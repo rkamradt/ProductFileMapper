@@ -9,9 +9,10 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 
 class RegularCalculatedPrice : StoreFileDescriptorConverter<BigDecimal> {
-    override fun convert(fieldName: String,
-                         data: Map<String, String>,
-                         descriptor: StoreFileDescriptor
+    override fun convert(
+        fieldName: String,
+        data: Map<String, String>,
+        descriptor: StoreFileDescriptor
     ): BigDecimal {
         val split = data[storeRegularSplitPrice]?.toLong() ?: 0L != 0L
         val price = if (split)
@@ -27,5 +28,4 @@ class RegularCalculatedPrice : StoreFileDescriptorConverter<BigDecimal> {
         else
             price
     }
-
 }

@@ -8,9 +8,10 @@ import net.kamradt.pfm.data.storeRegularSplitPrice
 import java.math.BigDecimal
 
 class RegularDisplayPrice : StoreFileDescriptorConverter<String?> {
-    override fun convert(fieldName: String,
-                         data: Map<String, String>,
-                         descriptor: StoreFileDescriptor
+    override fun convert(
+        fieldName: String,
+        data: Map<String, String>,
+        descriptor: StoreFileDescriptor
     ): String? {
         val split = data[storeRegularSplitPrice]?.toLong() ?: 0L != 0L
         val price = if (split)
@@ -18,8 +19,8 @@ class RegularDisplayPrice : StoreFileDescriptorConverter<String?> {
         else
             BigDecimal.valueOf(data[storeRegularSingularPrice]?.toLong() ?: 0L, 2)
         return if (split)
-            "${data[storeRegularForX]?.toInt()} for \$${price}"
+            "${data[storeRegularForX]?.toInt()} for \$$price"
         else
-            "\$${price}"
+            "\$$price"
     }
 }
