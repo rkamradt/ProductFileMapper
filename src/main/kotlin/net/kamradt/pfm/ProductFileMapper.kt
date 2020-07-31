@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
-import net.kamradt.pfm.api.ProductDescriptionConsumer
+import kotlinx.coroutines.flow.*
 import net.kamradt.pfm.api.StoreFileDescriptorConverter
 import net.kamradt.pfm.api.StoreMapper
 import net.kamradt.pfm.data.*
@@ -17,23 +14,24 @@ import java.util.Objects.isNull
 import kotlin.reflect.full.createInstance
 
 class ProductFileMapper(
-    private val consumer: ProductDescriptionConsumer,
-    private val producer: ProductReaderProducer =
-        ProductReaderProducer(),
+    private val destination: (ProductDescription) -> Unit,
+    private val source: (BufferedReader) -> Flow<String> =
+        { reader -> reader.lineSequence().asFlow() },
     private val storeMapperMap: Map<String, StoreMapper> =
         configStoreMapBuilder()
 ) {
 
     suspend fun mapProductReader(reader: BufferedReader, storeName: String): Unit =
-        if (storeMapperMap.containsKey(storeName))
-            producer.recordProducer(reader)
-                .map { storeMapperMap.getValue(storeName).mapFromStore(it) }
+        if (storeMapperMap.containsKey(storeName)) {
+            val storeMapper = storeMapperMap[storeName]
+            source(reader)
+                .map { storeMapper?.mapFromStore(it) }
                 .filterNotNull()
-                .map { storeMapperMap.getValue(storeName).mapToProduct(it) }
+                .map { storeMapper?.mapToProduct(it) }
                 .filterNotNull()
-                .collect { consumer.action(it) }
-        else
-            throw RuntimeException("unknown store $storeName")
+                .collect { destination(it) }
+        } else
+            throw IllegalArgumentException("unknown store $storeName")
 }
 
 fun configStoreMapBuilder(resourceName: String = "/stores.yaml"): Map<String, StoreMapper> {
@@ -56,17 +54,14 @@ fun createStoreMapper(descriptor: StoreFileDescriptor): StoreMapper =
                     { getConverterClass(it) })
         override fun mapFromStore(row: String): Map<String, String>? =
             try {
-                val maxRowSize = descriptor
-                    .fields
-                    .stream()
-                    .mapToInt{ it.endOffset ?: 0 }
-                    .max()
-                    .orElse(0)
-                if (row.length < maxRowSize) row.padEnd(maxRowSize,' ')
+                val paddedrow = if (row.length < MAX_ROW_SIZE)
+                    row.padEnd(MAX_ROW_SIZE,' ')
+                else
+                    row
                 descriptor.fields
                     .filter { !isNull(it.storeFileFieldName)  }
                     .associateBy({it.storeFileFieldName ?: ""},
-                        {row.substring((it.startOffset ?: 1)-1,(it.endOffset ?: 1))})
+                        {paddedrow.substring((it.startOffset ?: 1)-1,(it.endOffset ?: 1))})
             } catch (ex: Exception) {
                 null
             }

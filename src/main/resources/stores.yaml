@@ -1,80 +1,66 @@
-type: "ProductDescription"
+type: "Stores"
 stores:
   - name: "SuperStore"
     fields:
       - storeFileFieldName: "productId"
-        storeFileFieldType: Number
         productDescriptionField: "productId"
-        productDescriptionType: "Long"
         startOffset: 1
         endOffset: 8
         converterClassName: "net.kamradt.pfm.converter.Number"
       - storeFileFieldName: "productDescription"
-        storeFileFieldType: String
         productDescriptionField: "productDescription"
-        productDescriptionType: "String"
         startOffset: 10
         endOffset: 68
         converterClassName: "net.kamradt.pfm.converter.OptionalString"
       - storeFileFieldName: "regularSingularPrice"
-        storeFileFieldType: Currency
-        productDescriptionField: "regularCalculatorPrice"
-        productDescriptionType: "BigDecimal"
+        productDescriptionField: ""
         startOffset: 70
         endOffset: 77
-        converterClassName: "net.kamradt.pfm.converter.Currency"
       - storeFileFieldName: "promotionalSingularPrice"
-        storeFileFieldType: Currency
-        productDescriptionField: "promotionalCalculatorPrce"
-        productDescriptionType: "BigDecimal"
+        productDescriptionField: ""
         startOffset: 79
         endOffset: 86
-        converterClassName: "net.kamradt.pfm.converter.OptionalCurrency"
       - storeFileFieldName: "regularSplitPrice"
-        storeFileFieldType: Currency
         productDescriptionField: ""
         startOffset: 88
         endOffset: 95
       - storeFileFieldName: "promotionalSplitPrice"
-        storeFileFieldType: Currency
         productDescriptionField: ""
         startOffset: 97
         endOffset: 104
       - storeFileFieldName: "regularForX"
-        storeFileFieldType: Number
         productDescriptionField: ""
         startOffset: 106
         endOffset: 113
       - storeFileFieldName: "promotionalForX"
-        storeFileFieldType: Number
         productDescriptionField: ""
         startOffset: 115
         endOffset: 122
       - storeFileFieldName: "flags"
-        storeFileFieldType: Flag
         productDescriptionField: ""
         startOffset: 124
         endOffset: 132
       - storeFileFieldName: "productSize"
-        storeFileFieldType: String
         productDescriptionField: "productSize"
-        productDescriptionType: "String"
         startOffset: 134
         endOffset: 142
+        converterClassName: "net.kamradt.pfm.converter.OptionalString"
       - storeFileFieldName: ""
         productDescriptionField: "regularDisplayPrice"
-        productDescriptionType: "String"
         converterClassName: "net.kamradt.pfm.converter.RegularDisplayPrice"
       - storeFileFieldName: ""
         productDescriptionField: "promotionalDisplayPrice"
-        productDescriptionType: "String"
         converterClassName: "net.kamradt.pfm.converter.PromotionalDisplayPrice"
       - storeFileFieldName: ""
+        productDescriptionField: "regularCalculatedPrice"
+        converterClassName: "net.kamradt.pfm.converter.RegularCalculatedPrice"
+      - storeFileFieldName: ""
+        productDescriptionField: "promotionalCalculatedPrice"
+        converterClassName: "net.kamradt.pfm.converter.PromotionalCalculatedPrice"
+      - storeFileFieldName: ""
         productDescriptionField: "unitOfMeasure"
-        productDescriptionType: "String"
         converterClassName: "net.kamradt.pfm.converter.UnitOfMeasure"
       - storeFileFieldName: ""
         productDescriptionField: "taxRate"
-        productDescriptionType: "BigDecimal"
         converterClassName: "net.kamradt.pfm.converter.TaxRate"
 

@@ -8,9 +8,64 @@ Read from a product file and map to a database object
 
 ## Instructions for running the project:
 
-instructions go here
+This project uses a normal maven based build. Building generally takes the form of:
+
+```
+mvn clean install
+```
+
+Other normal maven goals are supported as well.
+
+The CI build can be found [here](https://ci.appveyor.com/project/rkamradt/productfilemapper)
+
+The entrypoint is the class:
+
+```
+class ProductFileMapper(
+    private val destination: (ProductDescription) -> Unit,
+    private val source: (BufferedReader) -> Flow<String> =
+        { reader -> reader.lineSequence().asFlow() },
+    private val storeMapperMap: Map<String, StoreMapper> =
+        configStoreMapBuilder()
+)
+```
+The only required parameter is the destination, the other parameters are only for very
+special use-cases. The destination parameter determines the disposition of each `ProductDescription`
+type that is read in from a `BufferedReader`. The function to call in this class is
+```
+suspend fun mapProductReader(reader: BufferedReader, storeName: String): Unit
+```
+This takes a `BufferedReader` as an input source and a storeName that indexes into a yaml file
+It is the callers responsiblity to close the stream or file it came from when the processing is 
+finished. It is also the callers responsibilty to decide the threading for the suspend. The only
+store currently listed in the yaml file is 'SuperStore'
+
+The yaml file is designed like so:
+
+```
+type: "Stores"
+stores:
+  - name: "SuperStore"
+    fields:
+      - storeFileFieldName: "productId"
+        productDescriptionField: "productId"
+        startOffset: 1
+        endOffset: 8
+        converterClassName: "net.kamradt.pfm.converter.Number"
+      - storeFileFieldName: ""
+        productDescriptionField: "taxRate"
+        converterClassName: "net.kamradt.pfm.converter.TaxRate"
+```
+Note, this is a truncated version of the actual `stores.yaml`. Either the `storeFileFieldName` or the `productDescriptionField` or both must be present. If both
+fields are present, a common converter such as `net.kamradt.pfm.converter.Number` can be used
+to map the input field to the output field. If there is only a `storeFileFieldName` the field is
+read from the input and saved. If there is only a `productDescriptionField` a specialized 
+converter such as `net.kamradt.pfm.converter.TaxRate` must be used to determine the input fields 
+used. New custom converters can be created but must implement the interface `StoreFileDescriptorConverter`
 
 ## Overview
+
+(Copied from the requirements doc)
 
 Swiftly needs to integrate with a grocery store's product information system so our system can stay current with the store's product inventory and pricing.  Another dev will be responsible for ingesting the files and passing their contents to the processing library you create based on the requirements below.
 
