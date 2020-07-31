@@ -1,5 +1,6 @@
 package net.kamradt.pfm.data
 
+import net.kamradt.pfm.api.StoreFileDescriptorConverter
 import java.math.BigDecimal
 
 data class ProductDescription(
@@ -12,4 +13,19 @@ data class ProductDescription(
     val unitOfMeasure: String? = null, //  Weighted items are per pound
     val productSize: String? = null,
     val taxRate: BigDecimal
-)
+) {
+    constructor(converters: Map<String, StoreFileDescriptorConverter<Any>>,
+                data: Map<String, String>,
+                descriptor: StoreFileDescriptor
+    ) : this(
+        converters["productId"]?.convert("productId", data, descriptor) as Long,
+        converters["productDescription"]?.convert("productDescription", data, descriptor) as String?,
+        converters["regularDisplayPrice"]?.convert("regularDisplayPrice", data, descriptor) as String?,
+        converters["regularCalculatorPrice"]?.convert("regularCalculatorPrice", data, descriptor) as BigDecimal,
+        converters["promotionalDisplayPrice"]?.convert("promotionalDisplayPrice", data, descriptor) as String?,
+        converters["promotionalCalculatorPrice"]?.convert("promotionalCalculatorPrice", data, descriptor) as BigDecimal?,
+        converters["unitOfMeasure"]?.convert("unitOfMeasure", data, descriptor) as String?,
+        converters["productSize"]?.convert("productSize", data, descriptor) as String?,
+        converters["taxRate"]?.convert("taxRate", data, descriptor) as BigDecimal
+    )
+}

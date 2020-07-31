@@ -8,22 +8,28 @@ stores:
         productDescriptionType: "Long"
         startOffset: 1
         endOffset: 8
-      - storeFileFieldName: "productDescriptor"
+        converterClassName: "net.kamradt.pfm.converter.Number"
+      - storeFileFieldName: "productDescription"
         storeFileFieldType: String
         productDescriptionField: "productDescription"
         productDescriptionType: "String"
         startOffset: 10
         endOffset: 68
+        converterClassName: "net.kamradt.pfm.converter.OptionalString"
       - storeFileFieldName: "regularSingularPrice"
         storeFileFieldType: Currency
-        productDescriptionField: ""
+        productDescriptionField: "regularCalculatorPrice"
+        productDescriptionType: "BigDecimal"
         startOffset: 70
         endOffset: 77
+        converterClassName: "net.kamradt.pfm.converter.Currency"
       - storeFileFieldName: "promotionalSingularPrice"
         storeFileFieldType: Currency
-        productDescriptionField: ""
+        productDescriptionField: "promotionalCalculatorPrce"
+        productDescriptionType: "BigDecimal"
         startOffset: 79
         endOffset: 86
+        converterClassName: "net.kamradt.pfm.converter.OptionalCurrency"
       - storeFileFieldName: "regularSplitPrice"
         storeFileFieldType: Currency
         productDescriptionField: ""
@@ -51,10 +57,24 @@ stores:
         endOffset: 132
       - storeFileFieldName: "productSize"
         storeFileFieldType: String
-        productDescriptionField: ""
+        productDescriptionField: "productSize"
+        productDescriptionType: "String"
         startOffset: 134
         endOffset: 142
       - storeFileFieldName: ""
-        productDescriptionField: "regularCalculatorPrice"
+        productDescriptionField: "regularDisplayPrice"
         productDescriptionType: "String"
+        converterClassName: "net.kamradt.pfm.converter.RegularDisplayPrice"
+      - storeFileFieldName: ""
+        productDescriptionField: "promotionalDisplayPrice"
+        productDescriptionType: "String"
+        converterClassName: "net.kamradt.pfm.converter.PromotionalDisplayPrice"
+      - storeFileFieldName: ""
+        productDescriptionField: "unitOfMeasure"
+        productDescriptionType: "String"
+        converterClassName: "net.kamradt.pfm.converter.UnitOfMeasure"
+      - storeFileFieldName: ""
+        productDescriptionField: "taxRate"
+        productDescriptionType: "BigDecimal"
+        converterClassName: "net.kamradt.pfm.converter.TaxRate"
 

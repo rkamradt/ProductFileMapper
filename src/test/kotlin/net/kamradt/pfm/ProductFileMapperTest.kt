@@ -6,7 +6,9 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.math.BigDecimal
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ProductFileMapperTest {
@@ -83,5 +85,29 @@ class ProductFileMapperTest {
         val storeMap = configStoreMapBuilder("/stores.yaml")
         assertEquals(1, storeMap.size)
         assertTrue(storeMap.containsKey("SuperStore"))
+    }
+
+    @Test
+    fun `test createStoreMapBuilder function for boundry condition`() = runBlocking {
+        val sut = ProductFileMapper(
+            consumer = consumer
+        )
+        sut.mapProductReader(
+            BufferedReader(
+                InputStreamReader(
+                    javaClass.getResourceAsStream("/boundries.txt"))),
+            "SuperStore"
+        )
+        //TODO fix conversion assertions
+        assertEquals(1, consumer.map.size)
+        assertEquals(12345678L, consumer.map[12345678L]?.productId)
+        assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&", consumer.map[12345678L]?.productDescription)
+        assertEquals("\$123456.78", consumer.map[12345678L]?.regularDisplayPrice)
+        assertEquals(BigDecimal.valueOf(0,4), consumer.map[12345678L]?.regularCalculatorPrice)
+        assertEquals("12345678 for \$123456.78", consumer.map[12345678L]?.promotionalDisplayPrice)
+        assertNull(consumer.map[12345678L]?.promotionalCalculatorPrice)
+        assertEquals("Each", consumer.map[12345678L]?.unitOfMeasure)
+        assertNull(consumer.map[12345678L]?.productSize)
+
     }
 }
