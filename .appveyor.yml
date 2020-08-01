@@ -7,3 +7,5 @@ cache:
 artifacts:
   - path: target/product-file-mapper-1.0-SNAPSHOT.jar
     name: ProductFileMapper 1.0 Snapshot
+  - path: target/product-file-mapper-1.0-SNAPSHOT-sources.jar
+    name: ProductFileMapper Source 1.0 Snapshot
