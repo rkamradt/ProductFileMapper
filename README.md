@@ -35,7 +35,9 @@ class ProductFileMapper(
 
 The only required parameter is the destination, the other parameters are only for 
 special use-cases. The destination parameter determines the disposition of each `ProductDescription`
-type that is read in from a `BufferedReader`. 
+type that is read in from a `BufferedReader` (add to a database or collection). Internally
+the function uses the Flow type from the coroutine library, but unless you create your
+own source, that should be transparent. 
 
 The main function is this:
 
