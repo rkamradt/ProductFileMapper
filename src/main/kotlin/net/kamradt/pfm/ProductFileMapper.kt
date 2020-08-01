@@ -1,3 +1,26 @@
+/*
+ * The MIT License
+ *
+ * Copyright 2020 randalkamradt.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package net.kamradt.pfm
 
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -20,6 +43,12 @@ import java.io.BufferedReader
 import java.util.Objects.isNull
 import kotlin.reflect.full.createInstance
 
+/**
+ * The main class for this library. The destination parameter is expected
+ * to enter items into a database. The source and storeMapperMap are
+ * defaulted with reasonable values
+ *
+ */
 class ProductFileMapper(
     private val destination: (ProductDescription) -> Unit,
     private val source: (BufferedReader) -> Flow<String> =
@@ -27,7 +56,13 @@ class ProductFileMapper(
     private val storeMapperMap: Map<String, StoreMapper> =
         configStoreMapBuilder()
 ) {
-
+    /**
+     * The main function for this libary. Will read from the reader parameters,
+     * map the values into a ProductDescription, and send them to the destination.
+     *
+     * The storeName parameter will find the store in the stores.yaml and use that
+     * for mapping instructions. Currently only 'SuperStore' is used.
+     */
     suspend fun mapProductReader(reader: BufferedReader, storeName: String): Unit =
         if (storeMapperMap.containsKey(storeName)) {
             val storeMapper = storeMapperMap[storeName]
@@ -41,6 +76,9 @@ class ProductFileMapper(
             throw IllegalArgumentException("unknown store $storeName")
 }
 
+/**
+ * read in the stores from 'stores.yaml' and build up a map of StoreMapper objects
+ */
 fun configStoreMapBuilder(resourceName: String = "/stores.yaml"): Map<String, StoreMapper> {
     val mapper = ObjectMapper(YAMLFactory())
     mapper.registerModule(KotlinModule())
@@ -50,6 +88,11 @@ fun configStoreMapBuilder(resourceName: String = "/stores.yaml"): Map<String, St
     }
 }
 
+/**
+ * creates a StoreMapper function with both phases of the mapping defined
+ * by the StoreFileDescriptor which is read in from the stores.yaml. One per
+ * store (although there's only one store for now)
+ */
 fun createStoreMapper(descriptor: StoreFileDescriptor): StoreMapper =
     object : StoreMapper {
         val converterMap: Map<String, StoreFileDescriptorConverter<Any>> =
@@ -90,6 +133,9 @@ fun createStoreMapper(descriptor: StoreFileDescriptor): StoreMapper =
             }
     }
 
+/**
+ * helper function to find converters from their class names as strings
+ */
 @Suppress("UNCHECKED_CAST")
 fun getConverterClass(descriptor: StoreFileDescriptorField): StoreFileDescriptorConverter<Any> =
     Class.forName(descriptor.converterClassName)
