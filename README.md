@@ -16,10 +16,10 @@ mvn clean install
 
 Other normal maven goals are supported as well.
 
-The CI build can be found [here](https://ci.appveyor.com/project/rkamradt/productfilemapper)
+The CI build can be found [here](https://ci.appveyor.com/project/rkamradt/productfilemapper).
 
-The last built jar can be found [here](https://ci.appveyor.com/project/rkamradt/productfilemapper/build/artifacts)
-The last build test results can be found [here](https://ci.appveyor.com/project/rkamradt/productfilemapper/build/tests)
+The last built jar can be found [here](https://ci.appveyor.com/project/rkamradt/productfilemapper/build/artifacts).
+The last build test results can be found [here](https://ci.appveyor.com/project/rkamradt/productfilemapper/build/tests).
 
 The entrypoint is the class:
 
@@ -87,6 +87,27 @@ fun configStoreMapBuilder(resourceName: String = "/stores.yaml"): Map<String, St
         val stores: StoresFileDescriptor = mapper.readValue(it)
         return stores.stores.associateBy({it.name}, {createStoreMapper(it)})
     }
+}
+```
+
+Also in the library is an example calling of the `ProductFileMapper.mapProdcutReader` called
+`readProductFromFile`. This demonstrates calling the library with just a file and store name, and 
+returning a list. It takes care of blocking and closing the file. This is the code:
+
+```
+fun readProductFromFile(file: File, storeName: String): List<ProductDescription> {
+    val list = mutableListOf<ProductDescription>()
+    val mapper = ProductFileMapper(
+        destination = { list.add(it) }
+    )
+    val reader = BufferedReader(FileReader(file, StandardCharsets.UTF_8))
+    reader.use { // close the reader when we're done
+        runBlocking { // block until the method is complete
+            mapper.mapProductReader(reader, storeName)
+
+        }
+    }
+    return list
 }
 ```
 

@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import net.kamradt.pfm.api.StoreFileDescriptorConverter
 import net.kamradt.pfm.api.StoreMapper
 import net.kamradt.pfm.data.MAX_ROW_SIZE
@@ -40,8 +41,30 @@ import net.kamradt.pfm.data.StoreFileDescriptor
 import net.kamradt.pfm.data.StoreFileDescriptorField
 import net.kamradt.pfm.data.StoresFileDescriptor
 import java.io.BufferedReader
+import java.io.File
+import java.io.FileReader
+import java.nio.charset.StandardCharsets
 import java.util.Objects.isNull
 import kotlin.reflect.full.createInstance
+
+/**
+ * example usage of the ProductFileMapper. Runs mapProductReader blocking and
+ * collects the ProductDescription objects in a MutableList.
+ */
+fun readProductFromFile(file: File, storeName: String): List<ProductDescription> {
+    val list = mutableListOf<ProductDescription>()
+    val mapper = ProductFileMapper(
+        destination = { list.add(it) }
+    )
+    val reader = BufferedReader(FileReader(file, StandardCharsets.UTF_8))
+    reader.use { // close the reader when we're done
+        runBlocking { // block until the method is complete
+            mapper.mapProductReader(reader, storeName)
+
+        }
+    }
+    return list
+}
 
 /**
  * The main class for this library. The destination parameter is expected
@@ -52,12 +75,12 @@ import kotlin.reflect.full.createInstance
 class ProductFileMapper(
     private val destination: (ProductDescription) -> Unit,
     private val source: (BufferedReader) -> Flow<String> =
-        { reader -> reader.lineSequence().asFlow() },
+        { it.lineSequence().asFlow() },
     private val storeMapperMap: Map<String, StoreMapper> =
         configStoreMapBuilder()
 ) {
     /**
-     * The main function for this libary. Will read from the reader parameters,
+     * The main function for this class. Will read from the reader parameters,
      * map the values into a ProductDescription, and send them to the destination.
      *
      * The storeName parameter will find the store in the stores.yaml and use that
